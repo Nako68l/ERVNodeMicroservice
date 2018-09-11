@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { tourismTariffs } from "./tarrifs/tariffs.route"
+import { tourismTariffs } from "./tariffs/tariffs.route"
 
 const router: Router = Router(); // eslint-disable-line new-cap
 

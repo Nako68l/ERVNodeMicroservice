@@ -1,0 +1,1 @@
+export const AMADEUS_URL = (endpoint: string) => `https://api.preview.amadeusinsurance.com/v2/${endpoint}?_token=db6c88fe0156f64b78b44e02990da207`

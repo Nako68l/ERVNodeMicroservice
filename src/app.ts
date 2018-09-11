@@ -8,7 +8,7 @@ class App {
         this.routes()
     }
 
-    public app;
+    public app: any;
 
 
     config(): any {
