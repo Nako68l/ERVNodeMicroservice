@@ -1,9 +1,9 @@
 import { Router } from "express";
-import * as tarrifsController from "./tariffs.controller"
+import * as tariffsController from "./tariffs.controller"
 
 const router: Router = Router(); // eslint-disable-line new-cap
 
 router.route('/')
-    .post(tarrifsController.getTourismTariffs)
+    .post(tariffsController.getTourismTariffs)
 
-export const tourismTariffs = router;
+export const tourismTariffs = router

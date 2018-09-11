@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { AMADEUS_URL } from "../environment";
 import { TARIFFS } from "./hard-data/tariffs-list"
 import COUNTRIES from "./hard-data/countries"
-import { Risks } from "../enums/risks";
+import { Risks } from "@enums/risks";
 import { Travel_Purpose } from "../enums/travel_purpose";
 import Axios from "axios"
 
