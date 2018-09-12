@@ -1,5 +1,5 @@
 import express from "express";
-import * as routes from "./index.route"
+import routes from "./index.route"
 
 class App {
     constructor() {

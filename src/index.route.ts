@@ -16,4 +16,4 @@ router.use('/tourism_tariffs', tourismTariffs);
 // // mount auth routes at /auth
 // router.use('/auth', authRoutes);
 
-module.exports = router;
+export default router;

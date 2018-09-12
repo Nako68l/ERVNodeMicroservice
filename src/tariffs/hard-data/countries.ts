@@ -1,4 +1,9 @@
-export default [
+export interface CountryRegion {
+    name: string,
+    region: string
+}
+
+export const COUNTRIES: Array<CountryRegion> = [
     {
         "name": "Ukraine",
         "region": "Европа"
