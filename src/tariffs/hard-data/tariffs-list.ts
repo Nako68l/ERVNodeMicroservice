@@ -1,10 +1,10 @@
-interface TariffInfo {
+export interface Tariff_Info {
     external_code: string,
     name: string,
     state: string
 }
 
-export const TARIFFS: Array<TariffInfo> = [
+export const TARIFFS: Array<Tariff_Info> = [
     {
         "external_code": "9fb45a4340dec506915bb002815ceccb",
         "name": "Эконом Европа",

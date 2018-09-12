@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { AMADEUS_URL } from "../environment";
-import { TARIFFS } from "./hard-data/tariffs-list"
+import { TARIFFS, Tariff_Info } from "./hard-data/tariffs-list"
 import { COUNTRIES } from "./hard-data/countries"
 import { Risks } from "../enums/risks";
 import { Travel_Purpose } from "../enums/travel_purpose";
@@ -23,27 +23,28 @@ async function getTourismTariffs(req: Request, res: Response, next: NextFunction
     if (reqBody.risks && reqBody.risks.length > 0) {
         tariffType = Tariff_Type.Basic
 
-        if (isAllowedRisks(reqBody.risks)) {
-            if (reqBody.travel_purpose == Travel_Purpose.Sport) {
-                tariffType = Tariff_Type.ActiveTourism
-            }
-        } else {
+        if (!isAllowedRisks(reqBody.risks)) {
             return res.json(null)
         }
-
     } else {
         tariffType = Tariff_Type.Economic
+    }
+    if (reqBody.travel_purpose == Travel_Purpose.Sport) {
+        tariffType = Tariff_Type.ActiveTourism
     }
 
     const country = findCountry(reqBody.country_name);
     if (!country) return noSuchCountryError(res);
 
-    let externalCode = getTariffExternalCode(country.region, tariffType);
-
-    const tariffs = await calculateAmadeusTariff(req.body, AMADEUS_URL(`packet/${externalCode}/calculate`));
-
-    res.json(tariffs);
-
+    const tariff = getTariff(country.region, tariffType);
+    if (tariff) {
+        console.log(tariff.name)
+        const tariffs = await calculateAmadeusTariff(req.body, AMADEUS_URL(`packet/${tariff.external_code}/calculate`));
+        res.json(tariffs);
+    } else {
+        console.error('THERE IS NO SUCH TARIFF IN TARIFF LIST. CHECK TARIFF LIST, REGION NAME AND TARIFF TYPE ENUM \n at tariffs.controller')
+        res.status(500).send('No suitable tariff, check beck-end validation that allowed this happen')
+    }
 };
 
 const calculateAmadeusTariff = async (params: Tourism_Tariffs_Request_Body, url: string) => {
@@ -51,8 +52,8 @@ const calculateAmadeusTariff = async (params: Tourism_Tariffs_Request_Body, url:
         "date_from": params.residence_start_date,
         "date_till": params.residence_end_date,
     }
-    params.persons_birthdays.forEach((birthday, i) => body[`persons[{${i}}][birthday]`] = birthday)
-
+    params.persons_birthdays.forEach((birthday, i) => body[`persons[${i + 1}][birthday]`] = birthday)
+    console.log(body)
     const { data } = await Axios.post(url, body)
     return data;
 }
@@ -64,12 +65,10 @@ const findCountry = (countryName: string) => {
     })
 }
 
-const getTariffExternalCode = (countryRegion: string, tariffType: Tariff_Type) => {
-    const tariff = TARIFFS.find(tariff => {
+const getTariff = (countryRegion: string, tariffType: Tariff_Type): Tariff_Info | undefined => {
+    return TARIFFS.find(tariff => {
         return tariff.name.includes(countryRegion) && tariff.name.includes(tariffType)
     })
-    if (tariff) return tariff.external_code
-    else console.error('THERE IS NO SUCH TARIFF IN TARIFF LIST. CHECK TARIFF LIST, REGION NAME AND TARIFF TYPE ENUM \n at tariffs.controller')
 }
 
 const noSuchCountryError = (res: Response) => {
