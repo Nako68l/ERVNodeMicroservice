@@ -16,6 +16,19 @@ interface Tourism_Tariffs_Request_Body {
     travel_purpose: Travel_Purpose
 }
 
+interface Calculate_AT_Request_Body {
+    date_from: string,
+    date_till: string,
+    birthday: string,
+    persons?: {
+        first_name: string,
+        patronymic: string,
+        last_name: string,
+        passport: string,
+        birthday: string
+    }[]
+}
+
 async function getTourismTariffs(req: Request, res: Response, next: NextFunction) {
     const reqBody: Tourism_Tariffs_Request_Body = req.body
     let tariffType: Tariff_Type
@@ -39,8 +52,9 @@ async function getTourismTariffs(req: Request, res: Response, next: NextFunction
     const tariff = getTariff(country.region, tariffType);
     if (tariff) {
         console.log(tariff.name)
-        const tariffs = await calculateAmadeusTariff(req.body, AMADEUS_URL(`packet/${tariff.external_code}/calculate`));
-        res.json(tariffs);
+        const calculatedData = await calculateAmadeusTariff(req.body, AMADEUS_URL(`packet/${tariff.external_code}/calculate`));
+
+        res.json(calculatedData);
     } else {
         console.error('THERE IS NO SUCH TARIFF IN TARIFF LIST. CHECK TARIFF LIST, REGION NAME AND TARIFF TYPE ENUM \n at tariffs.controller')
         res.status(500).send('No suitable tariff, check beck-end validation that allowed this happen')
@@ -48,15 +62,17 @@ async function getTourismTariffs(req: Request, res: Response, next: NextFunction
 };
 
 const calculateAmadeusTariff = async (params: Tourism_Tariffs_Request_Body, url: string) => {
-    let body: { [k: string]: any } = {
-        "date_from": params.residence_start_date,
-        "date_till": params.residence_end_date,
+    let body: Calculate_AT_Request_Body = {
+        date_from: params.residence_start_date,
+        date_till: params.residence_end_date,
+        birthday: params.persons_birthdays[0],
+        persons: getRestPersons(params.persons_birthdays)
     }
-    params.persons_birthdays.forEach((birthday, i) => body[`persons[${i + 1}][birthday]`] = birthday)
     console.log(body)
     const { data } = await Axios.post(url, body)
     return data;
 }
+
 
 const isAllowedRisks = (risks: Array<Risks>) => risks.every(risk => risk == Risks.DocumentsLose || risk == Risks.BaggageLose)
 const findCountry = (countryName: string) => {
@@ -69,6 +85,22 @@ const getTariff = (countryRegion: string, tariffType: Tariff_Type): Tariff_Info 
     return TARIFFS.find(tariff => {
         return tariff.name.includes(countryRegion) && tariff.name.includes(tariffType)
     })
+}
+
+const getRestPersons = (birthdays: string[]) => {
+    let persons = []
+    if (birthdays.length > 1) {
+        for (let i = 0; i < birthdays.length; i++) {
+            persons.push({
+                first_name: "hardcode",
+                patronymic: "hardcode",
+                last_name: "hardcode",
+                passport: "hardcode",
+                birthday: birthdays[i]
+            })
+        }
+    }
+    return persons;
 }
 
 const noSuchCountryError = (res: Response) => {
