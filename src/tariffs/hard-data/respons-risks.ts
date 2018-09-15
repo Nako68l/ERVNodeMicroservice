@@ -1,19 +1,19 @@
 import { Tariff_Type } from "enums/tariff_type";
 
-export const responseRisksByTariffType: { [key in keyof typeof Tariff_Type]: { [key: string]: string | number }[] } = {
-    Economic: [
+export const responseRisksByTariffType: { [k in Tariff_Type]: { [key: string]: string | number }[] } = {
+    [Tariff_Type.Economic]: [
         { "name": "medical treatment", "currency": "EUR", "amount": 30000 },
         { "name": "dental treatment", "currency": "EUR", "amount": 300 },
         { "name": "accident", "currency": "EUR", "amount": 3000 },
     ],
-    Basic: [
+    [Tariff_Type.Basic]: [
         { "name": "medical treatment", "currency": "EUR", "amount": 30000 },
         { "name": "dental treatment", "currency": "EUR", "amount": 300 },
         { "name": "accident", "currency": "EUR", "amount": 3000 },
         { "name": "baggage lose", "currency": "EUR", "amount": 450 },
         { "name": "documents lose", "currency": "EUR", "amount": 450 },
     ],
-    ActiveTourism: [
+    [Tariff_Type.ActiveTourism]: [
         { "name": "medical treatment", "currency": "EUR", "amount": 30000 },
         { "name": "dental treatment", "currency": "EUR", "amount": 300 },
         { "name": "accident", "currency": "EUR", "amount": 3000 },

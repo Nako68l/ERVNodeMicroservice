@@ -6,6 +6,7 @@ import { Risks } from "enums/risks.enum";
 import { Travel_Purpose } from "enums/travel_purpose";
 import Axios from "axios"
 import { Tariff_Type } from "enums/tariff_type";
+import { responseRisksByTariffType } from "./hard-data/respons-risks";
 
 interface Tourism_Tariffs_Request_Body {
     residence_start_date: string,
@@ -14,6 +15,16 @@ interface Tourism_Tariffs_Request_Body {
     risks: Array<Risks>,
     country_name: string,
     travel_purpose: Travel_Purpose
+}
+
+interface Tourism_Tariffs_Response_Body {
+    id: string,
+    name: string
+    amount: number,
+    currency: string,
+    franchise: number,
+    purpose: string,
+    risks: { [key: string]: string | number }[]
 }
 
 interface Calculate_AT_Request_Body {
@@ -51,10 +62,18 @@ async function getTourismTariffs(req: Request, res: Response, next: NextFunction
 
     const tariff = getTariff(country.region, tariffType);
     if (tariff) {
-        console.log(tariff.name)
         const calculatedData = await calculateAmadeusTariff(req.body, AMADEUS_URL(`packet/${tariff.external_code}/calculate`));
 
-        res.json(calculatedData);
+        let response: Tourism_Tariffs_Response_Body = {
+            id: "111111",
+            name: tariff.name,
+            amount: calculatedData['result']['basic']['total_price_formatted'],
+            currency: "EUR",
+            franchise: 0,
+            purpose: reqBody.travel_purpose,
+            risks: responseRisksByTariffType[tariffType]
+        }
+        res.json(response);
     } else {
         console.error('THERE IS NO SUCH TARIFF IN TARIFF LIST. CHECK TARIFF LIST, REGION NAME AND TARIFF TYPE ENUM \n at tariffs.controller')
         res.status(500).send('No suitable tariff, check beck-end validation that allowed this happen')
@@ -68,11 +87,9 @@ const calculateAmadeusTariff = async (params: Tourism_Tariffs_Request_Body, url:
         birthday: params.persons_birthdays[0],
         persons: getRestPersons(params.persons_birthdays)
     }
-    console.log(body)
     const { data } = await Axios.post(url, body)
     return data;
 }
-
 
 const isAllowedRisks = (risks: Array<Risks>) => risks.every(risk => risk == Risks.DocumentsLose || risk == Risks.BaggageLose)
 const findCountry = (countryName: string) => {
@@ -88,9 +105,9 @@ const getTariff = (countryRegion: string, tariffType: Tariff_Type): Tariff_Info 
 }
 
 const getRestPersons = (birthdays: string[]) => {
-    let persons = []
+    let persons = [{ first_name: "", patronymic: "", last_name: "", passport: "", birthday: "" }]
     if (birthdays.length > 1) {
-        for (let i = 0; i < birthdays.length; i++) {
+        for (let i = 1; i < birthdays.length; i++) {
             persons.push({
                 first_name: "hardcode",
                 patronymic: "hardcode",
