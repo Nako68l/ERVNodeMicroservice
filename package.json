@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon src/server"
+    "start": "nodemon --exec 'ts-node -r tsconfig-paths/register' src/server.ts "
   },
   "author": "",
   "license": "ISC",
@@ -16,5 +16,8 @@
     "express": "^4.16.3",
     "express-validation": "^1.0.2",
     "joi": "^13.6.0"
+  },
+  "devDependencies": {
+    "tsconfig-paths": "^3.6.0"
   }
 }

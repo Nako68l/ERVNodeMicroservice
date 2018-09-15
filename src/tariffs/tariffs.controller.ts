@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from "express";
-import { AMADEUS_URL } from "../environment";
+import { AMADEUS_URL } from "environment";
 import { TARIFFS, Tariff_Info } from "./hard-data/tariffs-list"
 import { COUNTRIES } from "./hard-data/countries"
-import { Risks } from "../enums/risks";
-import { Travel_Purpose } from "../enums/travel_purpose";
+import { Risks } from "enums/risks.enum";
+import { Travel_Purpose } from "enums/travel_purpose";
 import Axios from "axios"
-import { Tariff_Type } from "../enums/tariff_type";
+import { Tariff_Type } from "enums/tariff_type";
 
 interface Tourism_Tariffs_Request_Body {
     residence_start_date: string,
