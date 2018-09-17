@@ -2,5 +2,6 @@
     "ext": "ts,js,json",
     "execMap": {
         "ts": "ts-node"
-    }
+    },
+    "exec": "ts-node -r tsconfig-paths/register"
 }
